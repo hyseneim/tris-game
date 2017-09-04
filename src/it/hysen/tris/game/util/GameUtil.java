@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 import it.hysen.tris.game.Game;
-import it.hysen.tris.player.util.PlayerUtil;
 import it.hysen.tris.tree.TreeNode;
 import it.hysen.tris.tree.util.TreeUtil;
 
@@ -68,7 +67,7 @@ public class GameUtil {
 
 			if (directoryExists) {
 				final TreeNode radix = new TreeNode(null, game.getBoard());
-				final TreeNode radixNode = PlayerUtil.generateTree(game, radix, 1);
+				final TreeNode radixNode = TreeUtil.generateTree(game, radix, 1);
 
 				final Stream<TreeNode> treeStream = GameUtil.stream(radixNode);
 
@@ -107,7 +106,7 @@ public class GameUtil {
 
 			if (directoryExists) {
 				final TreeNode radix = new TreeNode(null, game.getBoard());
-				final TreeNode radixNode = PlayerUtil.generateTree(game, radix, 1);
+				final TreeNode radixNode = TreeUtil.generateTree(game, radix, 1);
 
 				final Stream<TreeNode> treeStream = GameUtil.stream(radixNode);
 
