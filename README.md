@@ -1,4 +1,4 @@
-# Project Title
+# Tris Game
 
 Simple Tris Game with Kryo to read and write tree nodes to file/files.
 
