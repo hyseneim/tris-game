@@ -1,6 +1,6 @@
 # Tris Game
 
-Simple Tris Game with Kryo to read and write tree nodes to file/files.
+Simple Tris Game with Kryo for read and write tree nodes to/from file(s).
 
 ## Getting Started
 
