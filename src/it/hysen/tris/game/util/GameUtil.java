@@ -74,27 +74,50 @@ public class GameUtil {
 
 				game.setTree(treeStream.collect(Collectors.toList()));
 
-				GameUtil.saveTreeAtDepthAsBinaryToFiles(game.getTree());
+				GameUtil.saveTreeAtDepthToBinaryFiles(game.getTree());
+			}
+		}
+	}
+
+	public static void initializeTreeAllNodes(Game game) {
+		boolean allExists = false;
+
+		for (int i = 0; i <= 9; i++) {
+			final Path filePath = Paths.get(TreeUtil.TREE_ALL_NODES_FILE);
+			allExists = Files.exists(filePath);
+			if (!allExists) {
+				break;
+			}
+		}
+
+		if (!allExists) {
+			final Path treeDirectory = Paths.get(TreeUtil.TREE_DIRECTORY);
+
+			boolean directoryExists = true;
+
+			if (!Files.exists(treeDirectory)) {
+				try {
+					Files.createDirectory(treeDirectory);
+				}
+				catch (final IOException e) {
+					e.printStackTrace();
+					directoryExists = false;
+				}
+			}
+
+			if (directoryExists) {
+				final TreeNode radix = new TreeNode(null, game.getBoard());
+				final TreeNode radixNode = PlayerUtil.generateTree(game, radix, 1);
+
+				final Stream<TreeNode> treeStream = GameUtil.stream(radixNode);
+
+				game.setTree(treeStream.collect(Collectors.toList()));
+
+				GameUtil.saveTreeToBinaryFile(game.getTree());
 			}
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	public static List<TreeNode> readTreeAtDepthAsBinaryFromFile(int depth) {
-		List<TreeNode> tree = null;
-		
-		final Path path = Paths.get(String.format(TreeUtil.TREE_FILE_TEMPLATE, depth));
-		try {
-			final Input input = new Input(new FileInputStream(path.toFile()));
-			tree = _kryo.readObject(input, ArrayList.class);
-		}
-		catch (final FileNotFoundException e1) {
-			e1.printStackTrace();
-		}
-		
-		return tree;
-	}
-
 	public static List<TreeNode> readTreeAtDepthAsJSONFromFile(int depth) {
 		List<TreeNode> tree = null;
 
@@ -118,28 +141,37 @@ public class GameUtil {
 
 		return tree;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static List<TreeNode> readTreeAtDepthFromBinaryFile(int depth) {
+		List<TreeNode> tree = null;
+		
+		final Path path = Paths.get(String.format(TreeUtil.TREE_FILE_TEMPLATE, depth));
+		try {
+			final Input input = new Input(new FileInputStream(path.toFile()));
+			tree = _kryo.readObject(input, ArrayList.class);
+		}
+		catch (final FileNotFoundException e1) {
+			e1.printStackTrace();
+		}
+		
+		return tree;
+	}
 
-	public static void saveTreeAtDepthAsBinaryToFiles(List<TreeNode> tree) {
-		final Map<Long, List<TreeNode>> depthSubTree = new TreeMap<>();
-		tree.forEach(treeNode -> {
-			if (!depthSubTree.containsKey(treeNode.getDepth())) {
-				final List<TreeNode> nodes = new ArrayList<>();
-				depthSubTree.put(treeNode.getDepth(), nodes);
-			}
-			depthSubTree.get(treeNode.getDepth()).add(treeNode);
-		});
-		depthSubTree.keySet().forEach((key) -> {
-			try {
-				final String fileName = String.format(TreeUtil.TREE_FILE_TEMPLATE, key);
-				final Output output = new Output(new FileOutputStream(fileName));
-				_kryo.writeObject(output, depthSubTree.get(key));
-				output.flush();
-				output.close();
-			}
-			catch (final IOException e) {
-				e.printStackTrace();
-			}
-		});
+	@SuppressWarnings("unchecked")
+	public static List<TreeNode> readTreeFromBinaryFile() {
+		List<TreeNode> tree = null;
+		
+		final Path path = Paths.get(TreeUtil.TREE_ALL_NODES_FILE);
+		try {
+			final Input input = new Input(new FileInputStream(path.toFile()));
+			tree = _kryo.readObject(input, ArrayList.class);
+		}
+		catch (final FileNotFoundException e1) {
+			e1.printStackTrace();
+		}
+		
+		return tree;
 	}
 
 	public static void saveTreeAtDepthAsJSONToFiles(List<TreeNode> tree) {
@@ -166,6 +198,42 @@ public class GameUtil {
 				e.printStackTrace();
 			}
 		});
+	}
+
+	public static void saveTreeAtDepthToBinaryFiles(List<TreeNode> tree) {
+		final Map<Long, List<TreeNode>> depthSubTree = new TreeMap<>();
+		tree.forEach(treeNode -> {
+			if (!depthSubTree.containsKey(treeNode.getDepth())) {
+				final List<TreeNode> nodes = new ArrayList<>();
+				depthSubTree.put(treeNode.getDepth(), nodes);
+			}
+			depthSubTree.get(treeNode.getDepth()).add(treeNode);
+		});
+		depthSubTree.keySet().forEach((key) -> {
+			try {
+				final String fileName = String.format(TreeUtil.TREE_FILE_TEMPLATE, key);
+				final Output output = new Output(new FileOutputStream(fileName));
+				_kryo.writeObject(output, depthSubTree.get(key));
+				output.flush();
+				output.close();
+			}
+			catch (final IOException e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
+	public static void saveTreeToBinaryFile(List<TreeNode> tree) {
+		try {
+			final String fileName = TreeUtil.TREE_ALL_NODES_FILE;
+			final Output output = new Output(new FileOutputStream(fileName));
+			_kryo.writeObject(output, tree);
+			output.flush();
+			output.close();
+		}
+		catch (final FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static Stream<TreeNode> stream(TreeNode parentNode) {

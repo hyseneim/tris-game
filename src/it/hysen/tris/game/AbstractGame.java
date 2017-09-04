@@ -36,7 +36,8 @@ public abstract class AbstractGame implements Game {
 		player1 = new HumanPlayer(this, Pawn.X);
 		player2 = new AIPlayer(this, Pawn.O);
 		
-		GameUtil.initializeTree(this);
+		GameUtil.initializeTreeAllNodes(this);
+		tree = GameUtil.readTreeFromBinaryFile();
 	}
 	
 	@Override
